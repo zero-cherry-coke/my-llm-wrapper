@@ -16,6 +16,7 @@ app.post("/", async (req, res) => {
   const TOGETHER_BASE_URL = "https://api.together.xyz";
   const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
   const TURBO_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free";
+  const GROQ_LLAMA_MODEL = "llama3-70b-8192";
   const FLUX_MODEL = "black-forest-labs/FLUX.1-schnell-Free";
   const MIXTRAL_MODEL = "mixtral-8x7b-32768";
   const DEEPSEEK_MODEL = "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free";
@@ -74,9 +75,12 @@ app.post("/", async (req, res) => {
   // 2-1. 이미지를 생성하는 프롬프트
   // llama-3-3-70b-free (together) -> 속도 측면
   const prompt = await callAI({
-    url: `${TOGETHER_BASE_URL}/v1/chat/completions`,
-    apiKey: TOGETHER_API_KEY,
-    model: TURBO_MODEL,
+    // url: `${TOGETHER_BASE_URL}/v1/chat/completions`,
+    // apiKey: TOGETHER_API_KEY,
+    // model: TURBO_MODEL,
+    url: GROQ_URL,
+    apiKey: GROQ_API_KEY,
+    model: GROQ_LLAMA_MODEL,
     // text,
     text: `${text}를 바탕으로 맛집 추천에 어울리는 AI 이미지 생성을 위한 200자 이내의 영어 프롬프트를 작성해줘`,
   }).then((res) => res.choices[0].message.content);
@@ -104,9 +108,12 @@ app.post("/", async (req, res) => {
   // 3-1. 설명을 생성하는 프롬프트
   // llama-3-3-70b-free (together)
   const prompt2 = await callAI({
-    url: `${TOGETHER_BASE_URL}/v1/chat/completions`,
-    apiKey: TOGETHER_API_KEY,
-    model: TURBO_MODEL,
+    // url: `${TOGETHER_BASE_URL}/v1/chat/completions`,
+    // apiKey: TOGETHER_API_KEY,
+    // model: TURBO_MODEL,
+    url: GROQ_URL,
+    apiKey: GROQ_API_KEY,
+    model: GROQ_LLAMA_MODEL,
     // text,
     text: `${text}를 바탕으로 맛집 추천에 어울리는 설명 생성을 위한 200자 이내의 한글 프롬프트를 작성해줘`,
   }).then((res) => res.choices[0].message.content);
@@ -126,8 +133,7 @@ app.post("/", async (req, res) => {
     url: `${TOGETHER_BASE_URL}/v1/chat/completions`,
     apiKey: TOGETHER_API_KEY,
     model: DEEPSEEK_MODEL,
-    // text,
-    text: promptJSON2,
+    text: `${promptJSON2}를 기반으로 마크다운 문법 없이 평문으로 작성해주고 한글 결과물을 원하고, 엔터로 줄바꿈을 넣어줘`,
     max_tokens: 2048,
   }).then((res) => res.choices[0].message.content.split("</think>")[1]);
 
