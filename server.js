@@ -18,12 +18,38 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", async (req, res) => {
-  const { text } = req.body;
+  const { TOGETHER_API_KEY } = process.env;
+  const TOGETHER_URL = "https://api.together.xyz/v1/chat/completions";
+  const TURBO_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free";
+
+  async function callAI({ url, model, text, apiKey }) {
+    const response = await axios.post(
+      url,
+      {
+        model,
+        messages: [
+          {
+            role: "user",
+            content: text,
+          },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  }
 
   // https://www.together.ai/models
   // https://console.groq.com/docs/models
 
   // 1. 텍스트를 받아옴
+  const { text } = req.body;
+
   // 2-1. 이미지를 생성하는 프롬프트
   // llama-3-3-70b-free (together) -> 속도 측면
   // llama-guard-3-8b (groq) -> 안전하게 (이상한 표현)
@@ -39,35 +65,11 @@ app.post("/", async (req, res) => {
   // mixtral-8x7b-32768 (groq)
   // 3-3. 그걸로 thinking 사용해서 설명을 작성
   // DeepSeek-R1-Distill-Llama-70B-free (together)
-  // 4. 그 결과를 { image: _, desc: _ }
 
-  const { TOGETHER_API_KEY } = process.env;
-  const model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free";
-  const url = "https://api.together.xyz/v1/chat/completions";
-  const api_key = TOGETHER_API_KEY;
-  const response = await axios.post(
-    url,
-    {
-      model,
-      messages: [
-        {
-          role: "user",
-          content: text,
-        },
-      ],
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${api_key}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  //   res.json({ data: response.data });
+  // 4. 그 결과를 { image: _, desc: _ }
   res.json({
-    image:
-      "https://zero-cherry-coke.github.io/my-llm-project/assets/preview.png",
-    desc: "정말 맛있는 음식입니다",
+    image,
+    desc,
   });
 });
 
